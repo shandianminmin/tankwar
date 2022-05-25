@@ -11,6 +11,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.JFrame;
 
 public class GamePanel extends JFrame{
+	Image offScreemImage = null;
 	
 	int width = 800;
 	int height = 610;
@@ -18,15 +19,18 @@ public class GamePanel extends JFrame{
 	int y = 150;
 	int state = 0;
 	int a = 1;
-	
+	PlayerOne playerOne = new PlayerOne("images/player1/p1tankU.gif",125, 510,
+			"images/player1/p1tankU.gif","images/player1/p1tankD.gif",
+			"images/player1/p1tankL.gif","images/player1/p1tankR.gif", this);
 	public void launch() {
+		System.out.println(88);
 		setTitle("坦克大作战");
 		setSize(width,height);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(3);
 		setResizable(false);
 		setVisible(true);
-		this.addKeyListener(new GamePanel.KeyMonitor());;
+		this.addKeyListener(new GamePanel.KeyMonitor());
 		while(true) {
 			repaint();
 			try {
@@ -40,28 +44,33 @@ public class GamePanel extends JFrame{
 	
 	@Override
 	public void paint(Graphics g) {
-		g.setColor(Color.gray);
-		g.fillRect(0, 0, width, height);
-		g.setColor(Color.blue);
-		g.setFont(new Font("仿宋", Font.BOLD, 50));
-		if(state == 0) {
-			
-		g.drawString("选择游戏模式", 220, 100);
-		g.drawString("单人模式", 220, 200);
-		g.drawString("双人模式", 220, 300);
-		g.drawImage(select, 160, y, null);
-	}
-		else if(state == 1 || state == 2) {
-			g.drawString("游戏开始", 220, 100);
-			if(state == 1) {
-				g.drawString("单人模式", 220, 200);
-			}
-			else {
-				g.drawString("双人模式", 220, 200);
-			}
+		if(offScreemImage == null) {
+		    offScreemImage = this.createImage(width, height);
 		}
+		Graphics gImage = offScreemImage.getGraphics();
+		gImage.setColor(Color.gray);
+		gImage.fillRect(0, 0, width, height);
+		gImage.setColor(Color.blue);
+		gImage.setFont(new Font("仿宋", Font.BOLD, 50));
+		if(state == 0) {
+		
+		gImage.drawString("选择游戏模式", 220, 100);
+		gImage.drawString("单人模式", 220, 200);
+		gImage.drawString("双人模式", 220, 300);
+		gImage.drawImage(select, 160, y, null);
+		} else if(state == 1 || state == 2) {
+			gImage.drawString("游戏开始", 220, 100);
+			if(state == 1) {
+				gImage.drawString("单人模式", 220, 200);
+			}else {
+				gImage.drawString("双人模式", 220, 200);
+			}
+			playerOne.paintSelf(gImage);
+		}
+		g.drawImage(offScreemImage,0,0,null);
 	}
-	class KeyMonitor extends KeyAdapter{
+	
+	private class KeyMonitor extends KeyAdapter{
 		@Override
 		public void keyPressed(KeyEvent e) {
 			int key = e.getKeyCode();
@@ -77,11 +86,18 @@ public class GamePanel extends JFrame{
 			case KeyEvent.VK_ENTER:
 				state = a;
 				break;
+			default:
+				playerOne.keyPressed(e);
 			}
 			System.out.print(e.getKeyChar());
 		}
 		
+		public void keyReleased(KeyEvent e) {
+			playerOne.keyReleased(e);
+			
+		}
 	}
+	
 	public static void main(String[] args) {
 		GamePanel gp = new GamePanel();
 		gp.launch();
